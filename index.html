@@ -1,4 +1,25 @@
 <html>
+  <head>
+    <style>
+      html {
+        font-family: 'Roboto', sans-serif;
+      }
+      body {
+        background-color: #111;
+      }
+      ul li {
+        color: lightgray;
+        padding-bottom: 3px;
+      }
+      ul li:first-child a {
+        color: white !important;
+        font-size: 2em;
+      }
+      a {
+        color: lightblue;
+      }
+    </style>
+  </head>
   <body>
     <script>
       (async () => {
@@ -7,6 +28,7 @@
         let htmlString = '<ul>';
         
         for (let file of data) {
+          if(file.name == "index.html") continue;
           htmlString += `<li><a href="${file.path}">${file.name}</a></li>`;
         }
 
