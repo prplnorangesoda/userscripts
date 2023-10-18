@@ -5,7 +5,7 @@
 // @description  Various improvements to the YouTube comment display -- NOTE: BETA
 // @author       You
 // @website      https://rafplayz.dev/userscripts
-// @match        https://www.youtube.com/watch*
+// @match        https://www.youtube.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
 // @require      
 // @grant        GM_registerMenuCommand
@@ -151,7 +151,6 @@ function dragElement(elmnt) {
       let comments = document.querySelectorAll("div#body.ytd-comment-renderer");
       let unaffected_comments = Array.from(comments).filter((val) => {
         if(val.classList.contains("ycb-affected")) {
-          console.log("affected");
           return false;
         }
         return true;
@@ -159,42 +158,57 @@ function dragElement(elmnt) {
 
       if(unaffected_comments.length === 0) continue;
 
-      let ids = ""
-      unaffected_comments.forEach(async comment => {
-        let author_text = (comment
+      let ids = "";
+      /**
+       * @type {CommentInfo[]}
+       */
+      let elements_to_change = [];
+      unaffected_comments.forEach(comment => {
+        let author_element = (comment
           .children[1] // div#main
           .children[0] // div#header
           .children[1] // div#header-author
           .children[0] // h3
           .children[0] // a#author-text
+        );
+        let author_text = (author_element
           .children[0] // span
           .innerText
-        )
-        let author_id = (comment
-          .children[1] // div#main
-          .children[0] // div#header
-          .children[1] // div#header-author
-          .children[0] // h3
-          .children[0]
-          .href // a#author-text
-        ).replace("https://www.youtube.com/channel/","")
-        
-        
+        );
+        let author_id = (author_element.href).replace("https://www.youtube.com/channel/","");
         console.log(author_text)
         console.log(author_id)
         ids += author_id + ","
         comment.classList.add("ycb-affected")
+        elements_to_change.push({
+          element: author_element,
+          username: author_text,
+          id: author_id
+        })
       })
       ids = ids.slice(0, ids.length-1)
       console.log(ids)
 
-      let subscriberCounts = await fetch(`https://www.googleapis.com/youtube/v3/channels?`+
+      let subscriber_counts = await fetch(`https://www.googleapis.com/youtube/v3/channels?`+
       `id=${ids}&key=${token}&part=statistics`)
 
+      /**
+       * @type {GoogleApiReturnedInfo}
+       */
+      let returned_info = await subscriber_counts.json();
 
+      elements_to_change.forEach(async text => {
+        let foundStats = returned_info.items.find(value => {
+          if (value.id == text.id) return true
+        })
+        console.log(foundStats);
+        if(!foundStats) return;
+      })
+
+      console.log(elements_to_change);
       console.log(unaffected_comments);
-      console.log(subscriberCounts);
-      console.log(await subscriberCounts.json());
+      console.log(subscriber_counts);
+      console.log(returned_info);
     }
   })()
 })();
