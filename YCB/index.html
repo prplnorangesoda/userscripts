@@ -29,6 +29,9 @@
         
         for (let file of data) {
           if(file.name == "index.html") continue;
+          if(file.type == "dir") {
+            htmlString += `<li><a href="${file.path}">&lt;DIRECTORY&gt; ${file.name}</a></li>`;
+          }
           htmlString += `<li><a href="${file.path}">${file.name}</a></li>`;
         }
 
