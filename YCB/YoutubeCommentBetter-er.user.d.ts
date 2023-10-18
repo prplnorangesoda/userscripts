@@ -1,3 +1,5 @@
+// For developing with Intellisense
+
 interface GoogleApiReturnedInfo {
   etag: string;
   items: YoutubeChannelInfo[];
@@ -20,7 +22,7 @@ interface YoutubeChannelStatistics {
 }
 
 interface CommentInfo {
-  element: HTMLElement;
-  username: string;
-  id: string;
+  author_element: HTMLElement;
+  author_username: string;
+  author_id: string;
 }
