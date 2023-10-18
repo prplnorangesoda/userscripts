@@ -292,7 +292,8 @@ const open_config_menu = () => {
           if (!comment_style_added) {
             GM_addStyle(
               "div.YCB-subbox {" +
-              "display:inline;color: #aaa;background-color: black;border-radius:5px;border: 1px solid black;padding-left: 2px;padding-right: 2px" +
+              "display:inline;color: #aaa;background-color: black;border-radius:5px;border: 1px solid black;padding-left: 2px;"+
+              "padding-right: 2px;font-size: 11.7px; font-weight: 700" +
               "}" +
               "span.YCB-subcount {" +
               "color:orange;" +
