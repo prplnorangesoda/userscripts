@@ -88,7 +88,7 @@ const open_config_menu = () => {
       ".YCB-box {" +
       "position: fixed; display: flex; flex-direction: column;align-items:center;color: black; background-color: white;" +
       "z-index: 20000;border-radius:5px;border: 1px solid black;min-width: 200px;min-height: 200px;" +
-      "font-size: 1.6em" +
+      "font-size: 1.6em;cursor: default;" +
       "}" +
       "div.YCB-configcontainer {" +
       "display: flex;flex-direction: column;" +
@@ -104,9 +104,16 @@ const open_config_menu = () => {
   let box = document.createElement("div");
   box.classList.add("YCB-box");
   box.id = "YCB-box"
-  box.innerText = "Drag me! (Refresh to update)";
   box_container.appendChild(box);
   dragElement(box);
+
+  let title = document.createElement("h3");
+  title.innerText = "YCB config menu";
+  box.appendChild(title);
+
+  let subtitle = document.createElement("h4");
+  subtitle.innerText = "Drag me! (refresh to update settings)";
+  box.appendChild(subtitle);
 
   let close_button = document.createElement("button");
   close_button.classList.add("YCB-boxclose");
