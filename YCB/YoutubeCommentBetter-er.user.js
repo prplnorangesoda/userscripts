@@ -298,7 +298,7 @@ const open_config_menu = async () => {
           sub_count.className = "YCB-subcount";
           sub_count.innerText = (foundStats.statistics.hiddenSubscriberCount
             ? "Hidden"
-            : foundStats.statistics.subscriberCount);
+            : ((foundStats.statistics.subscriberCount)-0).toLocaleString()); // FIXME: remove ugly one-liner
 
           sub_count_container.appendChild(sub_count);
 
