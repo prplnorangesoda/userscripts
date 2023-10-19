@@ -65,6 +65,36 @@ function drag_element(elmnt) {
   }
 }
 
+async function add_config_button_to_navbar() {
+  let config_button = document.createElement("div");
+  config_button.className = "YCB-configbutton";
+  config_button.style = "margin-right: 8px;cursor: pointer";
+  config_button.id = "YCB-configbutton";
+  config_button.onclick = open_config_menu;
+
+  let config_button_icon = document.createElement("img");
+  config_button_icon.src = "https://rafplayz.dev/userscripts/YCB/ycb-logo.png";
+  config_button_icon.height = 40;
+  config_button_icon.width = 40;
+  config_button.appendChild(config_button_icon);
+
+  // add config button to navbar
+  (async () => {
+    while (true) {
+      await sleep(1000);
+      debug_log("searching for navbar");
+      let navbar = document.querySelector("div#buttons.ytd-masthead");
+      if (!navbar || !navbar.children.length) {
+        console.warn("no navbar found");
+        continue;
+      }
+      debug_log("navbar found");
+      navbar.prepend(config_button);
+      break;
+    }
+  })();
+}
+
 let config_style_added = false;
 let comment_style_added = false;
 
@@ -199,7 +229,7 @@ const open_config_menu = async () => {
 
   debug_log("event listeners added")
   // main execution
-  (async () => {
+  (() => {
     debug_log("main execution async function running");
     // sub count checker
     // if enabled, run this asynchronous task
@@ -336,32 +366,4 @@ const open_config_menu = async () => {
 // end of executed script
 })();
 
-function add_config_button_to_navbar() {
-  let config_button = document.createElement("div");
-  config_button.className = "YCB-configbutton";
-  config_button.style = "margin-right: 8px;cursor: pointer";
-  config_button.id = "YCB-configbutton";
-  config_button.onclick = open_config_menu;
 
-  let config_button_icon = document.createElement("img");
-  config_button_icon.src = "https://rafplayz.dev/userscripts/YCB/ycb-logo.png";
-  config_button_icon.height = 40;
-  config_button_icon.width = 40;
-  config_button.appendChild(config_button_icon);
-
-  // add config button to navbar
-  (async () => {
-    while (true) {
-      await sleep(1000);
-      debug_log("searching for navbar");
-      let navbar = document.querySelector("div#buttons.ytd-masthead");
-      if (!navbar || !navbar.children.length) {
-        console.warn("no navbar found");
-        continue;
-      }
-      debug_log("navbar found");
-      navbar.prepend(config_button);
-      break;
-    }
-  })();
-}
