@@ -214,6 +214,7 @@ const open_config_menu = async () => {
     // if enabled, run this asynchronous task
     if (GM_getValue("enable_subcount", true)) {
     (async () => {
+      
       debug_log("enable_subcount is true, continuing")
       // event loop
       while (true) {
@@ -271,6 +272,7 @@ const open_config_menu = async () => {
         ids = ids.slice(0, ids.length - 1)
         console.log(ids)
 
+        if(!token) alert("You cannot enable subscriber count in comments without providing an API key! Read https://rafplayz.dev/userscripts/YCB/README.md !")
         // fetch subscriber data from google API
         // token is defined in local userscript
         let subscriber_counts = await fetch(`https://www.googleapis.com/youtube/v3/channels?` +
