@@ -206,28 +206,7 @@ const open_config_menu = async () => {
   debug_log("enabled:",GM_getValue("enable", true));
   debug_log("config:", config);
 
-  GM_registerMenuCommand('Configure', open_config_menu)
-
-  // clean up subscriber counts when videos are clicked off of
-  unsafeWindow.addEventListener("yt-navigate-start", async (ev) => {
-    console.log("yt-navigate-start popped", ev)
-    document.querySelectorAll("div.YCB-subbox")
-    .forEach(element => element.remove())
-    document
-    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
-    .forEach(element => element.classList.remove("ycb-affected"))
-  })
-  unsafeWindow.addEventListener("yt-navigate-finish", async (ev) => {
-    console.log("yt-navigate-finish popped", ev)
-    document.querySelectorAll("div.YCB-subbox")
-    .forEach(element => element.remove());
-    document
-    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
-    .forEach(element => element.classList.remove("ycb-affected"));
-    add_config_button_to_navbar();
-  })
-
-  debug_log("event listeners added")
+  
   // main execution
   (() => {
     debug_log("main execution async function running");
@@ -362,6 +341,29 @@ const open_config_menu = async () => {
 
   // end of main execution
   })();
+
+  GM_registerMenuCommand('Configure', open_config_menu)
+
+  // clean up subscriber counts when videos are clicked off of
+  unsafeWindow.addEventListener("yt-navigate-start", async (ev) => {
+    console.log("yt-navigate-start popped", ev)
+    document.querySelectorAll("div.YCB-subbox")
+    .forEach(element => element.remove())
+    document
+    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
+    .forEach(element => element.classList.remove("ycb-affected"))
+  })
+  unsafeWindow.addEventListener("yt-navigate-finish", async (ev) => {
+    console.log("yt-navigate-finish popped", ev)
+    document.querySelectorAll("div.YCB-subbox")
+    .forEach(element => element.remove());
+    document
+    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
+    .forEach(element => element.classList.remove("ycb-affected"));
+    add_config_button_to_navbar();
+  })
+
+  debug_log("event listeners added")
 
 // end of executed script
 })();
