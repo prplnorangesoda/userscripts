@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Youtube comment better-er
 // @namespace    dev.rafplayz
-// @version      0.1
+// @version      0.2
 // @description  Various improvements to the YouTube comment display -- NOTE: BETA
 // @author       You
-// @website      https://rafplayz.dev/userscripts
+// @website      https://rafplayz.dev/userscripts/YCB
 // @match        https://www.youtube.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
 // @require      
