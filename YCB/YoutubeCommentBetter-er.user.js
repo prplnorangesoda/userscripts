@@ -352,7 +352,7 @@ const open_config_menu = async () => {
     document.querySelectorAll("div.YCB-subbox")
     .forEach(element => element.remove())
     document
-    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
+    .querySelectorAll(".ycb-affected")
     .forEach(element => element.classList.remove("ycb-affected"))
   })
   unsafeWindow.addEventListener("yt-navigate-finish", async (ev) => {
@@ -360,7 +360,7 @@ const open_config_menu = async () => {
     document.querySelectorAll("div.YCB-subbox")
     .forEach(element => element.remove());
     document
-    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
+    .querySelectorAll(".ycb-affected")
     .forEach(element => element.classList.remove("ycb-affected"));
     add_config_button_to_navbar();
   })
