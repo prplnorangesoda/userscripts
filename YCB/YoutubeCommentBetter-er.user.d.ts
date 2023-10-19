@@ -22,6 +22,7 @@ interface YoutubeChannelStatistics {
 }
 
 interface CommentInfo {
+  comment_element: HTMLElement;
   author_element: HTMLElement;
   author_username: string;
   author_id: string;

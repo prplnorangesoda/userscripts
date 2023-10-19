@@ -212,15 +212,19 @@ const open_config_menu = () => {
     if (GM_getValue("enable_subcount", true)) (async () => {
       // event loop
       while (true) {
+        // wait for comments to load
         await sleep(1000);
         let comments = document.querySelectorAll("div#body.ytd-comment-renderer");
+
+        // if comment already affected, remove from array
         let unaffected_comments = Array.from(comments).filter((val) => {
           if (val.classList.contains("ycb-affected")) {
             return false;
           }
           return true;
         })
-
+        
+        // wait for another second for comments to arrive if no comments
         if (unaffected_comments.length === 0) continue;
 
         let ids = "";
@@ -252,9 +256,12 @@ const open_config_menu = () => {
             author_id: author_id
           })
         })
+        // remove ending comma
         ids = ids.slice(0, ids.length - 1)
         console.log(ids)
 
+        // fetch subscriber data from google API
+        // token is defined in local userscript
         let subscriber_counts = await fetch(`https://www.googleapis.com/youtube/v3/channels?` +
           `id=${ids}&key=${token}&part=statistics`)
 
@@ -262,7 +269,8 @@ const open_config_menu = () => {
          * @type {GoogleApiReturnedInfo}
          */
         let returned_info = await subscriber_counts.json();
-
+        
+        // add subscriber count with data from API
         elements_to_change.forEach(async comment => {
           let foundStats = returned_info.items.find(value => {
             if (value.id == comment.author_id) return true
@@ -299,6 +307,7 @@ const open_config_menu = () => {
               "color:orange;" +
               "}"
             )
+            // if to the right of name, add padding
             if(!GM_getValue("subcount_below_name")) GM_addStyle("div.YCB-subbox { margin-left: 5px; }")
             comment_style_added = true;
           }
