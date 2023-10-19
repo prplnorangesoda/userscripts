@@ -14,6 +14,12 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
+function sleep(time) {
+  return new Promise((res) => {
+    setTimeout(res, time)
+  })
+}
+
 // from https://www.w3schools.com/howto/howto_js_draggable.asp
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -169,40 +175,7 @@ const open_config_menu = () => {
   console.log("New userscript ran");
   console.log(GM_getValue("enable", true))
 
-
-  function sleep(time) {
-    return new Promise((res) => {
-      setTimeout(res, time)
-    })
-  }
   GM_registerMenuCommand('Configure', open_config_menu)
-  let config_button = document.createElement("div");
-  config_button.className = "YCB-configbutton";
-  config_button.style = "margin-right: 8px;cursor: pointer"
-  config_button.id = "YCB-configbutton";
-  config_button.onclick = open_config_menu;
-
-  let config_button_icon = document.createElement("img");
-  config_button_icon.src = "https://rafplayz.dev/userscripts/YCB/ycb-logo.png";
-  config_button_icon.height = 40;
-  config_button_icon.width = 40;
-  config_button.appendChild(config_button_icon);
-
-  // add config button to navbar
-  (async () => {
-    while (true) {
-      console.log("searching for navbar")
-      let navbar = document.querySelector("div#buttons.ytd-masthead")
-      if (!navbar || !navbar.children.length) {
-        console.warn("no navbar found")
-        await sleep(2000);
-        continue;
-      }
-      console.log("navbar found")
-      navbar.prepend(config_button)
-      break;
-    }
-  })();
 
   // main execution
   (async () => {
@@ -215,14 +188,17 @@ const open_config_menu = () => {
         // wait for comments to load
         await sleep(1000);
         let comments = document.querySelectorAll("div#body.ytd-comment-renderer");
-
+        if(comments.length === 0) continue;
+        let rejects = []
         // if comment already affected, remove from array
         let unaffected_comments = Array.from(comments).filter((val) => {
           if (val.classList.contains("ycb-affected")) {
+            rejects.push(val)
             return false;
           }
           return true;
         })
+        console.log(rejects)
         
         // wait for another second for comments to arrive if no comments
         if (unaffected_comments.length === 0) continue;
@@ -311,8 +287,6 @@ const open_config_menu = () => {
             if(!GM_getValue("subcount_below_name")) GM_addStyle("div.YCB-subbox { margin-left: 5px; }")
             comment_style_added = true;
           }
-
-          console.log("subcount below name:", GM_getValue("subcount_below_name"))
           if (GM_getValue("subcount_below_name")) {
             comment.author_element.parentElement.appendChild(sub_count_container);
           }
@@ -325,13 +299,62 @@ const open_config_menu = () => {
 
         console.log(elements_to_change);
         console.log(unaffected_comments);
-        console.log(subscriber_counts);
         console.log(returned_info);
       }
     })();
-  
+
+  // clean up subscriber counts when videos are clicked off of
+  unsafeWindow.addEventListener("yt-navigate-start", async (ev) => {
+    console.log("yt-navigate-start popped", ev)
+    document.querySelectorAll("div.YCB-subbox")
+    .forEach(element => element.remove())
+    document
+    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
+    .forEach(element => element.classList.remove("ycb-affected"))
+  })
+  unsafeWindow.addEventListener("yt-navigate-finish", async (ev) => {
+    console.log("yt-navigate-finish popped", ev)
+    document.querySelectorAll("div.YCB-subbox")
+    .forEach(element => element.remove());
+    document
+    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
+    .forEach(element => element.classList.remove("ycb-affected"));
+    add_config_button_to_navbar();
+  })
+
+
   // end of main execution
   })();
 
 // end of executed script
 })();
+
+function add_config_button_to_navbar() {
+  let config_button = document.createElement("div");
+  config_button.className = "YCB-configbutton";
+  config_button.style = "margin-right: 8px;cursor: pointer";
+  config_button.id = "YCB-configbutton";
+  config_button.onclick = open_config_menu;
+
+  let config_button_icon = document.createElement("img");
+  config_button_icon.src = "https://rafplayz.dev/userscripts/YCB/ycb-logo.png";
+  config_button_icon.height = 40;
+  config_button_icon.width = 40;
+  config_button.appendChild(config_button_icon);
+
+  // add config button to navbar
+  (async () => {
+    while (true) {
+      console.log("searching for navbar");
+      let navbar = document.querySelector("div#buttons.ytd-masthead");
+      if (!navbar || !navbar.children.length) {
+        console.warn("no navbar found");
+        await sleep(5000);
+        continue;
+      }
+      console.log("navbar found");
+      navbar.prepend(config_button);
+      break;
+    }
+  })();
+}
