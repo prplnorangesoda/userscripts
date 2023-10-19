@@ -19,9 +19,12 @@ function sleep(time) {
     setTimeout(res, time)
   })
 }
-
+const DEBUG = true;
+function debug_log(...args) {
+  if (DEBUG) console.log("%c[YCB]%c",'color: lime','color: gray', ...args)
+}
 // from https://www.w3schools.com/howto/howto_js_draggable.asp
-function dragElement(elmnt) {
+function drag_element(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (document.getElementById(elmnt.id + "header")) {
     // if present, the header is where you move the DIV from:
@@ -66,12 +69,6 @@ let config_style_added = false;
 let comment_style_added = false;
 
 let config = [
-  // {
-  //   type: "bool",
-  //   id: "enable_displayname",
-  //   name: "Enable displayname showing",
-  //   value: GM_getValue("enable_displayname", true)
-  // },
   {
     type: "bool",
     id: "enable_subcount",
@@ -86,10 +83,12 @@ let config = [
   }
 ]
 
-const open_config_menu = () => {
+
+const open_config_menu = async () => {
   console.log("Registered");
 
   if (!config_style_added) {
+    debug_log("Config style not added. Adding")
     GM_addStyle(
       ".YCB-box {" +
       "position: fixed; display: flex; flex-direction: column;align-items:center;color: black; background-color: white;" +
@@ -111,7 +110,7 @@ const open_config_menu = () => {
   box.classList.add("YCB-box");
   box.id = "YCB-box"
   box_container.appendChild(box);
-  dragElement(box);
+  drag_element(box);
 
   let title = document.createElement("h3");
   title.innerText = "YCB config menu";
@@ -168,26 +167,53 @@ const open_config_menu = () => {
   })
 
   document.body.appendChild(box_container);
+  debug_log("box created:",box)
 }
 
 (function () {
   'use strict';
-  console.log("New userscript ran");
-  console.log(GM_getValue("enable", true))
+  debug_log("YCB RUNNING");
+  debug_log("enabled:",GM_getValue("enable", true));
+  debug_log("config:", config);
 
   GM_registerMenuCommand('Configure', open_config_menu)
 
+  // clean up subscriber counts when videos are clicked off of
+  unsafeWindow.addEventListener("yt-navigate-start", async (ev) => {
+    console.log("yt-navigate-start popped", ev)
+    document.querySelectorAll("div.YCB-subbox")
+    .forEach(element => element.remove())
+    document
+    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
+    .forEach(element => element.classList.remove("ycb-affected"))
+  })
+  unsafeWindow.addEventListener("yt-navigate-finish", async (ev) => {
+    console.log("yt-navigate-finish popped", ev)
+    document.querySelectorAll("div.YCB-subbox")
+    .forEach(element => element.remove());
+    document
+    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
+    .forEach(element => element.classList.remove("ycb-affected"));
+    add_config_button_to_navbar();
+  })
+
+  debug_log("event listeners added")
   // main execution
   (async () => {
-
+    debug_log("main execution async function running");
     // sub count checker
     // if enabled, run this asynchronous task
-    if (GM_getValue("enable_subcount", true)) (async () => {
+    if (GM_getValue("enable_subcount", true)) {
+    (async () => {
+      debug_log("enable_subcount is true, continuing")
       // event loop
       while (true) {
+        debug_log("subcount loop begin")
         // wait for comments to load
         await sleep(1000);
         let comments = document.querySelectorAll("div#body.ytd-comment-renderer");
+        debug_log("all comments found",comments)
+
         if(comments.length === 0) continue;
         let rejects = []
         // if comment already affected, remove from array
@@ -198,7 +224,7 @@ const open_config_menu = () => {
           }
           return true;
         })
-        console.log(rejects)
+        debug_log("rejects:", rejects)
         
         // wait for another second for comments to arrive if no comments
         if (unaffected_comments.length === 0) continue;
@@ -302,26 +328,7 @@ const open_config_menu = () => {
         console.log(returned_info);
       }
     })();
-
-  // clean up subscriber counts when videos are clicked off of
-  unsafeWindow.addEventListener("yt-navigate-start", async (ev) => {
-    console.log("yt-navigate-start popped", ev)
-    document.querySelectorAll("div.YCB-subbox")
-    .forEach(element => element.remove())
-    document
-    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
-    .forEach(element => element.classList.remove("ycb-affected"))
-  })
-  unsafeWindow.addEventListener("yt-navigate-finish", async (ev) => {
-    console.log("yt-navigate-finish popped", ev)
-    document.querySelectorAll("div.YCB-subbox")
-    .forEach(element => element.remove());
-    document
-    .querySelectorAll("div#body.ytd-comment-renderer.ycb-affected")
-    .forEach(element => element.classList.remove("ycb-affected"));
-    add_config_button_to_navbar();
-  })
-
+    }
 
   // end of main execution
   })();
@@ -345,14 +352,14 @@ function add_config_button_to_navbar() {
   // add config button to navbar
   (async () => {
     while (true) {
-      console.log("searching for navbar");
+      await sleep(1000);
+      debug_log("searching for navbar");
       let navbar = document.querySelector("div#buttons.ytd-masthead");
       if (!navbar || !navbar.children.length) {
         console.warn("no navbar found");
-        await sleep(5000);
         continue;
       }
-      console.log("navbar found");
+      debug_log("navbar found");
       navbar.prepend(config_button);
       break;
     }
