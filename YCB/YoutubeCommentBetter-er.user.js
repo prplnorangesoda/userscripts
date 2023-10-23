@@ -212,7 +212,7 @@ const open_config_menu = async () => {
     debug_log("main execution async function running");
     // sub count checker
     // if enabled, run this asynchronous task
-    if (GM_getValue("enable_subcount", true) || !isCurrentlyNavigating) {
+    if (GM_getValue("enable_subcount", true)) {
     (async () => {
       
       debug_log("enable_subcount is true, continuing")
@@ -225,6 +225,7 @@ const open_config_menu = async () => {
         debug_log("all comments found",comments)
 
         if(comments.length === 0) continue;
+        if(isCurrentlyNavigating) continue;
         let rejects = []
         // if comment already affected, remove from array
         let unaffected_comments = Array.from(comments).filter((val) => {
