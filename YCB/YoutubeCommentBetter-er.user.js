@@ -205,14 +205,14 @@ const open_config_menu = async () => {
   debug_log("YCB RUNNING");
   debug_log("enabled:",GM_getValue("enable", true));
   debug_log("config:", config);
-
+  let isCurrentlyNavigating = false;
   
   // main execution
   (() => {
     debug_log("main execution async function running");
     // sub count checker
     // if enabled, run this asynchronous task
-    if (GM_getValue("enable_subcount", true)) {
+    if (GM_getValue("enable_subcount", true) || !isCurrentlyNavigating) {
     (async () => {
       
       debug_log("enable_subcount is true, continuing")
@@ -349,6 +349,7 @@ const open_config_menu = async () => {
   // clean up subscriber counts when videos are clicked off of
   unsafeWindow.addEventListener("yt-navigate-start", async (ev) => {
     console.log("yt-navigate-start popped", ev)
+    isCurrentlyNavigating = true;
     document.querySelectorAll("div.YCB-subbox")
     .forEach(element => element.remove())
     document
@@ -357,6 +358,7 @@ const open_config_menu = async () => {
   })
   unsafeWindow.addEventListener("yt-navigate-finish", async (ev) => {
     console.log("yt-navigate-finish popped", ev)
+    isCurrentlyNavigating = false;
     document.querySelectorAll("div.YCB-subbox")
     .forEach(element => element.remove());
     document
