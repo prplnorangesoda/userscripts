@@ -221,11 +221,12 @@ const open_config_menu = async () => {
         debug_log("subcount loop begin")
         // wait for comments to load
         await sleep(1000);
+        if(isCurrentlyNavigating) continue;
         let comments = document.querySelectorAll("div#body.ytd-comment-renderer");
         debug_log("all comments found",comments)
 
         if(comments.length === 0) continue;
-        if(isCurrentlyNavigating) continue;
+        
         let rejects = []
         // if comment already affected, remove from array
         let unaffected_comments = Array.from(comments).filter((val) => {
