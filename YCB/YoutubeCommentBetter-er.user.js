@@ -368,6 +368,15 @@ const open_config_menu = async () => {
     .forEach(element => element.classList.remove("ycb-affected"));
     add_config_button_to_navbar();
   })
+  unsafeWindow.addEventListener("onpopstate", async (ev) => {
+    console.log("state popped", ev)
+    isCurrentlyNavigating = true;
+    document.querySelectorAll("div.YCB-subbox")
+    .forEach(element => element.remove())
+    document
+    .querySelectorAll(".ycb-affected")
+    .forEach(element => element.classList.remove("ycb-affected"))
+  })
 
   debug_log("event listeners added")
 
