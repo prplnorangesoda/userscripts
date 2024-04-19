@@ -200,6 +200,14 @@ const open_config_menu = async () => {
   debug_log("box created:",box)
 }
 
+function makeApiRequest(url, options) {
+  return fetch(url, options)
+    .then((response) => response.json())
+    .catch((error) => {
+      console.error('Error making API request:', error);
+      throw error;
+    });
+}
 (function () {
   'use strict';
   debug_log("YCB RUNNING");
@@ -222,7 +230,7 @@ const open_config_menu = async () => {
         // wait for comments to load
         await sleep(1000);
         if(isCurrentlyNavigating) continue;
-        let comments = document.querySelectorAll("div#body.ytd-comment-renderer");
+        let comments = document.querySelectorAll("div#body.ytd-comment-view-model");
         debug_log("all comments found",comments)
 
         if(comments.length === 0) continue;
@@ -240,12 +248,11 @@ const open_config_menu = async () => {
         
         // wait for another second for comments to arrive if no comments
         if (unaffected_comments.length === 0) continue;
-
-        let ids = "";
         /**
          * @type {CommentInfo[]}
          */
         let elements_to_change = [];
+        let usernames = [];
         unaffected_comments.forEach(comment => {
           let author_element = (comment
             .children[1] // div#main
@@ -254,24 +261,33 @@ const open_config_menu = async () => {
             .children[0] // h3
             .children[0] // a#author-text
           );
-          let author_text = (author_element
-            .children[0] // span
-            .innerText
-          );
-          let author_id = (author_element.href).replace("https://www.youtube.com/channel/", "");
-          console.log(author_text)
-          console.log(author_id)
-          ids += author_id + ","
+          let author_username = (author_element.href).replace("https://www.youtube.com/", "");
+          usernames.push(author_username)
+          console.log(author_username)
           comment.classList.add("ycb-affected")
           elements_to_change.push({
             comment_element: comment,
             author_element: author_element,
-            author_username: author_text,
-            author_id: author_id
+            author_username: author_username
           })
         })
-        // remove ending comma
-        ids = ids.slice(0, ids.length - 1)
+        // stupid workaround because youtube stopped letting you scrape IDs
+        let requests = []
+        usernames.forEach(username => {
+          let request = makeApiRequest(`https://youtube.googleapis.com/youtube/v3/channels?part=id` +
+          `&forHandle=${username}&key=${token}`)
+          requests.push(request)
+        })
+
+        let channelIds
+        let responses = await Promise.all(requests)
+        console.log(responses)
+        channelIds = responses.map((response) => response.items[0].id);
+        console.log(channelIds)
+        channelIds.forEach((id, index) => {
+          elements_to_change[index].author_id = id
+        })
+        let ids = channelIds.join()
         console.log(ids)
 
         if(!token) alert("You cannot enable subscriber count in comments without providing an API key! Read https://rafplayz.dev/userscripts/YCB/README.md !")
